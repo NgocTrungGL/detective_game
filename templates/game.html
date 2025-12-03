@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detective Paraphrase</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body onclick="tryPlayIntro()">
+    <audio id="bgm-intro" loop>
+      <source
+        src="{{ url_for('static', filename='sounds/intro.mp3') }}"
+        type="audio/mpeg"
+      />
+    </audio>
+
+    <audio id="bgm-phase-1" loop>
+      <source
+        src="{{ url_for('static', filename='sounds/bgm-phase-13.mp3') }}"
+        type="audio/mpeg"
+      />
+    </audio>
+
+    <audio id="bgm-phase-2" loop>
+      <source
+        src="{{ url_for('static', filename='sounds/bgm-phase-46.mp3') }}"
+        type="audio/mpeg"
+      />
+    </audio>
+
+    <audio id="bgm-phase-3" loop>
+      <source
+        src="{{ url_for('static', filename='sounds/bgm-phase-79.mp3') }}"
+        type="audio/mpeg"
+      />
+    </audio>
+
+    <audio id="bgm-end">
+      <source
+        src="{{ url_for('static', filename='sounds/end.mp3') }}"
+        type="audio/mpeg"
+      />
+    </audio>
+
+    <audio id="sfx-typing">
+      <source
+        src="{{ url_for('static', filename='sounds/typing.mp3') }}"
+        type="audio/mpeg"
+      />
+    </audio>
+    <audio id="sfx-correct">
+      <source
+        src="{{ url_for('static', filename='sounds/correct.mp3') }}"
+        type="audio/mpeg"
+      />
+    </audio>
+
+    <div class="game-container">
+      <!-- INTRO -->
+      <div id="intro-screen">
+        <h1>📁 事件ファイル：No.404</h1>
+        <div class="story-box intro-text">
+          <p><strong>被害者（疑い）：</strong> 田中先輩（大学4年生）</p>
+          <p><strong>状況：</strong> 行方不明 3日目</p>
+          <p>
+            <strong>背景：</strong>
+            大雨の夜。田中が最後に目撃されたのは大学の正門付近。同じ時間帯に重大な交通事故があったという噂もある。
+          </p>
+          <p>
+            <strong>あなたの任務：</strong>
+            調査報告書の中で“ぼやけてしまった単語”を復元し、事件の真相を解き明かせ。
+          </p>
+          <p style="font-size: 0.8em; color: #666; margin-top: 10px">
+            ※どこかをクリックするとシステム音声が再生されます
+          </p>
+        </div>
+        <button class="start-btn" onclick="startGame()">🕵️‍♂️ 捜査開始</button>
+      </div>
+
+      <!-- GAME -->
+      <div id="game-area" style="display: none">
+        <div class="header-game">
+          <h2 id="level-title" style="margin: 0; color: #45a29e">手がかり…</h2>
+          <span id="progress-text" style="font-size: 20px">1/9</span>
+        </div>
+
+        <div class="progress-bar">
+          <div id="progress-fill"></div>
+        </div>
+
+        <div class="story-box cursor">
+          <p id="story-text"></p>
+        </div>
+
+        <div class="hints-container">
+          <div class="hint-box" onclick="revealHint(0)" id="hint-box-0">
+            <span class="hint-label">ヒント 1</span>
+            <span class="hint-content">???</span>
+          </div>
+          <div class="hint-box" onclick="revealHint(1)" id="hint-box-1">
+            <span class="hint-label">ヒント 2</span>
+            <span class="hint-content">???</span>
+          </div>
+          <div class="hint-box" onclick="revealHint(2)" id="hint-box-2">
+            <span class="hint-label">ヒント 3</span>
+            <span class="hint-content">???</span>
+          </div>
+        </div>
+
+        <div class="interaction-area">
+          <input
+            type="text"
+            id="answer-input"
+            placeholder="単語を入力..."
+            autocomplete="off"
+          />
+          <button onclick="submitAnswer()">確認</button>
+          <p id="feedback-msg"></p>
+        </div>
+      </div>
+
+      <!-- END -->
+      <div id="end-screen" style="display: none">
+        <h1>🎉 事件解決</h1>
+        <div class="story-box outro-text">
+          <h3>真相：</h3>
+          <p>田中先輩は<strong>事故には遭っていなかった</strong>。</p>
+          <p>
+            カメラ映像によると、彼は道に飛び出したおばあさんを助けようとしていたらしい。その際、カバンの中にあった卒論の原稿を落としてしまった。
+          </p>
+          <p>
+            締切に間に合わないと焦った田中は、おばあさんの看病をしながら、病院で一から卒論を書き直していた。
+          </p>
+          <p>
+            あなたが病室に入ると、田中はペンを握ったまま机に突っ伏して眠っていた…
+          </p>
+        </div>
+        <button class="start-btn" onclick="location.reload()">
+          🔄 再調査する
+        </button>
+      </div>
+    </div>
+
+    <!-- JS giữ nguyên -->
+    <script>
+      /* --- toàn bộ JS không đổi, chỉ đổi text bên trên --- */
+      let currentLevel = 1;
+      const totalLevels = 9;
+      let currentHints = [];
+      let currentBGM = null;
+      let introPlayed = false;
+
+      const bgmIntro = document.getElementById("bgm-intro");
+      const bgmPhase1 = document.getElementById("bgm-phase-1");
+      const bgmPhase2 = document.getElementById("bgm-phase-2");
+      const bgmPhase3 = document.getElementById("bgm-phase-3");
+      const bgmEnd = document.getElementById("bgm-end");
+      const sfxTyping = document.getElementById("sfx-typing");
+      const sfxCorrect = document.getElementById("sfx-correct");
+
+      const musicVolume = 0.4;
+      bgmIntro.volume = musicVolume;
+      bgmPhase1.volume = musicVolume;
+      bgmPhase2.volume = musicVolume;
+      bgmPhase3.volume = musicVolume;
+      bgmEnd.volume = 0.6;
+      sfxTyping.volume = 0.5;
+
+      function tryPlayIntro() {
+        if (
+          !introPlayed &&
+          document.getElementById("intro-screen").style.display !== "none"
+        ) {
+          bgmIntro.play().then(() => {
+            introPlayed = true;
+            currentBGM = bgmIntro;
+          });
+        }
+      }
+
+      function switchBGM(newBGM) {
+        if (currentBGM !== newBGM) {
+          if (currentBGM) {
+            currentBGM.pause();
+            currentBGM.currentTime = 0;
+          }
+          if (newBGM) {
+            newBGM.play().catch(() => {});
+            currentBGM = newBGM;
+          }
+        }
+      }
+
+      function startGame() {
+        document.getElementById("intro-screen").style.display = "none";
+        document.getElementById("game-area").style.display = "block";
+        loadLevel(currentLevel);
+      }
+
+      function loadLevel(id) {
+        resetHints();
+
+        if (id >= 1 && id <= 3) switchBGM(bgmPhase1);
+        else if (id >= 4 && id <= 6) switchBGM(bgmPhase2);
+        else if (id >= 7 && id <= 9) switchBGM(bgmPhase3);
+
+        fetch(`/get_level/${id}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.finished) {
+              finishGame();
+            } else {
+              document.getElementById("level-title").innerText = data.title;
+              document.getElementById(
+                "progress-text"
+              ).innerText = `${id}/${totalLevels}`;
+
+              const storyContainer = document.getElementById("story-text");
+              typeWriterHTML(data.story, storyContainer, 40);
+
+              document.getElementById("answer-input").value = "";
+              document.getElementById("feedback-msg").innerText = "";
+              document.getElementById("feedback-msg").className = "";
+
+              currentHints = data.hints;
+              let pct = ((id - 1) / totalLevels) * 100;
+              document.getElementById("progress-fill").style.width = pct + "%";
+            }
+          });
+      }
+
+      function typeWriterHTML(htmlText, element, speed) {
+        element.innerHTML = "";
+        let i = 0;
+        sfxTyping.pause();
+        sfxTyping.currentTime = 0;
+        sfxTyping.play().catch(() => {});
+
+        function type() {
+          if (i < htmlText.length) {
+            if (htmlText.charAt(i) === "<") {
+              let tag = "";
+              while (htmlText.charAt(i) !== ">" && i < htmlText.length) {
+                tag += htmlText.charAt(i);
+                i++;
+              }
+              tag += ">";
+              i++;
+              element.innerHTML += tag;
+            } else {
+              element.innerHTML += htmlText.charAt(i);
+              i++;
+            }
+            setTimeout(type, speed);
+          } else {
+            sfxTyping.pause();
+          }
+        }
+        type();
+      }
+
+      function resetHints() {
+        for (let i = 0; i < 3; i++) {
+          let box = document.getElementById(`hint-box-${i}`);
+          box.classList.remove("revealed");
+          box.querySelector(".hint-content").innerText = "??? (クリック)";
+        }
+      }
+
+      function revealHint(index) {
+        let box = document.getElementById(`hint-box-${index}`);
+        if (!box.classList.contains("revealed")) {
+          box.classList.add("revealed");
+          box.querySelector(".hint-content").innerText = currentHints[index];
+        }
+      }
+
+      function submitAnswer() {
+        const input = document.getElementById("answer-input").value;
+        fetch("/check_answer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ level_id: currentLevel, answer: input }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            const feedback = document.getElementById("feedback-msg");
+            if (data.correct) {
+              sfxCorrect.play();
+              feedback.innerText = data.message;
+              feedback.className = "success";
+              setTimeout(() => {
+                currentLevel++;
+                loadLevel(currentLevel);
+              }, 1500);
+            } else {
+              feedback.innerText = data.message;
+              feedback.className = "error";
+              document.getElementById("answer-input").classList.add("shake");
+              setTimeout(() => {
+                document
+                  .getElementById("answer-input")
+                  .classList.remove("shake");
+              }, 500);
+            }
+          });
+      }
+
+      function finishGame() {
+        document.getElementById("game-area").style.display = "none";
+        document.getElementById("end-screen").style.display = "block";
+        switchBGM(bgmEnd);
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document
+          .getElementById("answer-input")
+          .addEventListener("keypress", function (event) {
+            if (event.key === "Enter") submitAnswer();
+          });
+      });
+    </script>
+  </body>
+</html>
