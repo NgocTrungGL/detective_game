@@ -1,52 +1,57 @@
-/* ====== GLOBAL ====== */
+/* ====== 1. CẤU TRÚC CHUNG (GLOBAL) ====== */
 body {
-  margin: 0;
-  min-height: 100vh;
-  font-family: "Courier Prime", monospace;
+  background-color: #050505; /* Đen sâu (Deep Black) */
   color: #e0e0e0;
-  background-color: #050505;
-
+  font-family: "Courier Prime", monospace;
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 100vh;
+  margin: 0;
 
-  /* Hiệu ứng nền + scanline */
+  /* Hiệu ứng nền Cyberpunk: Lưới mờ + Scanlines */
   background-image: radial-gradient(#1f2833 1px, transparent 1px),
-    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
-    linear-gradient(
-      90deg,
-      rgba(255, 0, 0, 0.06),
-      rgba(0, 255, 0, 0.02),
-      rgba(0, 0, 255, 0.06)
-    );
+    /* Chấm bi nhẹ */
+      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+    /* Sọc ngang */
+      linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.06),
+        rgba(0, 255, 0, 0.02),
+        rgba(0, 0, 255, 0.06)
+      ); /* RGB Split */
   background-size: 20px 20px, 100% 2px, 3px 100%;
 }
 
-/* ====== CONTAINER ====== */
+/* ====== 2. KHUNG GAME (CONTAINER) ====== */
 .game-container {
   background-color: #0b0c10;
   border: 1px solid #45a29e;
+
+  /* Kích thước khung rộng (Wide Mode) */
   width: 900px;
   max-width: 95vw;
   padding: 50px;
-  border-radius: 6px;
+
   box-shadow: 0 0 30px rgba(69, 162, 158, 0.15);
-  overflow: hidden;
+  border-radius: 6px;
   position: relative;
+  overflow: hidden; /* Quan trọng để chứa lớp phủ CRT */
 }
 
-/* Hiệu ứng CRT Scanline */
+/* Lớp phủ hiệu ứng màn hình cũ (CRT Overlay) */
 .game-container::before {
   content: "";
   position: absolute;
-  inset: 0;
-  pointer-events: none;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  pointer-events: none; /* Để click xuyên qua được */
   opacity: 0.6;
+  z-index: 2;
 
-  background-image: linear-gradient(
-      rgba(18, 16, 16, 0) 50%,
-      rgba(0, 0, 0, 0.25) 50%
-    ),
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
     linear-gradient(
       90deg,
       rgba(255, 0, 0, 0.06),
@@ -56,37 +61,52 @@ body {
   background-size: 100% 2px, 3px 100%;
 }
 
-/* ====== TITLES ====== */
+/* ====== 3. TIÊU ĐỀ & CHỮ ====== */
 h1 {
   color: #66fcf1;
   text-align: center;
+  font-size: 36px; /* Chữ to hơn */
   margin-top: 0;
-
-  font-size: 36px;
+  text-shadow: 2px 2px #ff00de; /* Bóng Neon hồng */
   letter-spacing: 2px;
-  text-shadow: 2px 2px #ff00de;
 }
 
 h3 {
   color: #45a29e;
 }
 
-/* ====== STORY AREA ====== */
-.story-box {
-  background-color: #151b24;
-  color: #fff;
-  font-size: 22px;
+/* ====== 4. INTRO & OUTRO ====== */
+.intro-text,
+.outro-text {
+  text-align: left;
   line-height: 1.6;
-
-  min-height: 120px;
-  padding: 30px;
-  margin: 30px 0;
-
-  border-left: 5px solid #66fcf1;
+  border-left: 4px solid #66fcf1;
+  background: #18191c;
+  padding: 20px;
   position: relative;
+  z-index: 10; /* Nổi lên trên lớp CRT */
 }
 
-/* Con trỏ nhấp nháy */
+/* ====== 5. KHU VỰC CÂU CHUYỆN (STORY BOX) ====== */
+.story-box {
+  background-color: #151b24;
+  padding: 30px;
+  margin: 30px 0;
+  font-size: 22px; /* Font to dễ đọc */
+  min-height: 120px;
+  line-height: 1.6;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  border-left: 5px solid #66fcf1;
+  color: #fff;
+  position: relative;
+  border-radius: 4px;
+}
+
+/* Con trỏ nhấp nháy (Cursor Effect) */
 .cursor::after {
   content: "▋";
   color: #66fcf1;
@@ -103,24 +123,16 @@ h3 {
   }
 }
 
-/* ====== BLANK (ô cần điền) ====== */
+/* Ô trống điền từ */
 .blank {
-  display: inline-block;
-  padding: 0 5px;
-  color: #66fcf1;
   border-bottom: 2px solid #66fcf1;
+  color: #66fcf1;
+  padding: 0 5px;
+  font-weight: bold;
+  display: inline-block;
 }
 
-/* ====== INTRO / OUTRO ====== */
-.intro-text,
-.outro-text {
-  text-align: left;
-  line-height: 1.6;
-  background: #18191c;
-  border-left: 4px solid #66fcf1;
-}
-
-/* ====== HEADER IN GAME ====== */
+/* ====== 6. HEADER TRONG GAME ====== */
 .header-game {
   display: flex;
   justify-content: space-between;
@@ -129,28 +141,29 @@ h3 {
   font-weight: bold;
 }
 
-/* ====== HINT SYSTEM ====== */
+/* ====== 7. HỆ THỐNG GỢI Ý (HINTS) ====== */
 .hints-container {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 15px;
+  margin-bottom: 25px;
+  position: relative;
+  z-index: 10;
 }
 
 .hint-box {
   flex: 1;
-  height: 80px;
-  cursor: pointer;
-
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  text-align: center;
-
+  height: 80px; /* Hint to hơn */
   background: #1a1a1d;
   border: 1px dashed #555;
   padding: 10px;
+  text-align: center;
+  cursor: pointer;
   transition: 0.3s;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .hint-box:hover {
@@ -159,100 +172,97 @@ h3 {
 }
 
 .hint-box.revealed {
-  cursor: default;
   background: #0f3030;
   border: 1px solid #45a29e;
+  cursor: default;
 }
 
 .hint-label {
   font-size: 12px;
   color: #66fcf1;
   margin-bottom: 5px;
+  display: block;
+  text-transform: uppercase;
 }
 
 .hint-content {
-  font-size: 13px;
+  font-size: 14px;
   color: #fff;
   font-weight: bold;
 }
 
-/* ====== INPUT + BUTTON ====== */
-input[type="text"] {
-  width: 60%;
-  padding: 15px;
-
-  font-size: 20px;
+/* ====== 8. INPUT & BUTTONS ====== */
+.interaction-area {
   text-align: center;
+  position: relative;
+  z-index: 10; /* Đảm bảo input nổi lên trên hiệu ứng nền */
+}
 
+input[type="text"] {
+  padding: 15px;
+  width: 60%;
   background: #c5c6c7;
-  color: #000;
   border: none;
   font-family: inherit;
+  font-size: 20px; /* Input to hơn */
+  text-align: center;
+  margin-bottom: 10px;
+  color: #000;
 }
 
 button {
   padding: 15px 30px;
   font-size: 18px;
-
   background-color: #45a29e;
   color: #0b0c10;
   border: none;
-  cursor: pointer;
   font-weight: bold;
+  cursor: pointer;
   font-family: inherit;
+  transition: 0.3s;
 }
 
 button:hover {
-  background: #66fcf1;
+  background-color: #66fcf1;
 }
 
-/* ====== START BUTTON ====== */
 .start-btn {
   width: 100%;
-  padding: 15px;
   margin-top: 20px;
-  font-size: 18px;
-
-  background: #45a29e;
-  color: #000;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
 }
 
-.start-btn:hover {
-  background: #66fcf1;
-}
-
-/* ====== PROGRESS BAR ====== */
+/* ====== 9. THANH TIẾN TRÌNH & TRẠNG THÁI ====== */
 .progress-bar {
   width: 100%;
-  height: 6px;
-  border-radius: 3px;
   background-color: #333;
+  height: 8px;
+  border-radius: 4px;
+  margin-bottom: 20px;
 }
 
 #progress-fill {
   height: 100%;
-  width: 0%;
   background-color: #66fcf1;
+  width: 0%;
   transition: width 0.5s ease;
+  border-radius: 4px;
 }
 
-/* ====== STATUS COLORS ====== */
 .success {
   color: #66fcf1;
+  font-weight: bold;
+  margin-top: 10px;
 }
-
 .error {
   color: #ff4d4d;
+  font-weight: bold;
+  margin-top: 10px;
 }
 
-/* ====== SHAKE EFFECT ====== */
+/* Hiệu ứng rung (Shake) */
 .shake {
   animation: shake 0.5s;
 }
-
 @keyframes shake {
   0% {
     transform: translateX(0);
