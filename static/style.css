@@ -1,206 +1,48 @@
+/* ====== GLOBAL ====== */
 body {
-  background-color: #121212; /* Đen sâu hơn */
-  color: #e0e0e0;
+  margin: 0;
+  min-height: 100vh;
   font-family: "Courier Prime", monospace;
+  color: #e0e0e0;
+  background-color: #050505;
+
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  margin: 0;
-  background-image: radial-gradient(#1f2833 1px, transparent 1px);
-  background-size: 20px 20px; /* Hiệu ứng chấm bi nền */
+
+  /* Hiệu ứng nền + scanline */
+  background-image: radial-gradient(#1f2833 1px, transparent 1px),
+    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+    linear-gradient(
+      90deg,
+      rgba(255, 0, 0, 0.06),
+      rgba(0, 255, 0, 0.02),
+      rgba(0, 0, 255, 0.06)
+    );
+  background-size: 20px 20px, 100% 2px, 3px 100%;
 }
 
+/* ====== CONTAINER ====== */
 .game-container {
   background-color: #0b0c10;
   border: 1px solid #45a29e;
-  padding: 40px;
-  width: 650px;
-  box-shadow: 0 0 25px rgba(102, 252, 241, 0.1);
-  border-radius: 4px;
+  width: 900px;
+  max-width: 95vw;
+  padding: 50px;
+  border-radius: 6px;
+  box-shadow: 0 0 30px rgba(69, 162, 158, 0.15);
+  overflow: hidden;
   position: relative;
 }
 
-h1 {
-  color: #66fcf1;
-  text-align: center;
-  font-size: 28px;
-  margin-top: 0;
-}
-h3 {
-  color: #45a29e;
-}
+/* Hiệu ứng CRT Scanline */
+.game-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.6;
 
-/* Phần Intro và Outro */
-.intro-text,
-.outro-text {
-  text-align: left;
-  line-height: 1.6;
-  border-left: 4px solid #66fcf1;
-  background: #18191c;
-}
-
-.start-btn {
-  width: 100%;
-  padding: 15px;
-  margin-top: 20px;
-  font-size: 18px;
-  background: #45a29e;
-  color: #000;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-}
-.start-btn:hover {
-  background: #66fcf1;
-}
-
-/* Phần Game Area */
-.header-game {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  color: #888;
-  font-weight: bold;
-}
-
-.story-box {
-  background-color: #1f2833;
-  padding: 25px;
-  margin: 20px 0;
-  font-size: 18px;
-  min-height: 80px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  border-radius: 4px;
-}
-
-.blank {
-  border-bottom: 2px solid #66fcf1;
-  color: #66fcf1;
-  padding: 0 10px;
-  font-weight: bold;
-}
-
-/* Khu vực Hint (Mới) */
-.hints-container {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.hint-box {
-  flex: 1;
-  background: #1a1a1d;
-  border: 1px dashed #555;
-  padding: 10px;
-  text-align: center;
-  cursor: pointer;
-  transition: 0.3s;
-  height: 60px; /* Cố định chiều cao */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.hint-box:hover {
-  background: #222;
-  border-color: #888;
-}
-.hint-box.revealed {
-  background: #0f3030;
-  border: 1px solid #45a29e;
-  cursor: default;
-}
-
-.hint-label {
-  font-size: 12px;
-  color: #66fcf1;
-  margin-bottom: 5px;
-  display: block;
-}
-
-.hint-content {
-  font-size: 13px;
-  color: #fff;
-  font-weight: bold;
-}
-
-/* Input và Button */
-.interaction-area {
-  text-align: center;
-}
-input[type="text"] {
-  padding: 12px;
-  width: 60%;
-  background: #c5c6c7;
-  border: none;
-  font-family: inherit;
-  font-size: 18px;
-  text-align: center;
-}
-
-button {
-  padding: 12px 25px;
-  background-color: #45a29e;
-  color: #0b0c10;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.progress-bar {
-  width: 100%;
-  background-color: #333;
-  height: 6px;
-  border-radius: 3px;
-}
-#progress-fill {
-  height: 100%;
-  background-color: #66fcf1;
-  width: 0%;
-  transition: width 0.5s ease;
-}
-
-.success {
-  color: #66fcf1;
-}
-.error {
-  color: #ff4d4d;
-}
-.shake {
-  animation: shake 0.5s;
-}
-@keyframes shake {
-  0% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-5px);
-  }
-  50% {
-    transform: translateX(5px);
-  }
-  75% {
-    transform: translateX(-5px);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-body {
-  background-color: #050505;
-  color: #e0e0e0;
-  font-family: "Courier Prime", monospace;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  margin: 0;
-  /* Hiệu ứng lưới nền mờ */
   background-image: linear-gradient(
       rgba(18, 16, 16, 0) 50%,
       rgba(0, 0, 0, 0.25) 50%
@@ -214,65 +56,37 @@ body {
   background-size: 100% 2px, 3px 100%;
 }
 
-.game-container {
-  background-color: #0b0c10;
-  border: 1px solid #45a29e;
-  /* --- TĂNG KÍCH THƯỚC KHUNG Ở ĐÂY --- */
-  width: 900px; /* Rộng hơn */
-  max-width: 95vw;
-  padding: 50px; /* Thoáng hơn */
-  /* ----------------------------------- */
-  box-shadow: 0 0 30px rgba(69, 162, 158, 0.15);
-  border-radius: 6px;
-  position: relative;
-  overflow: hidden; /* Để chứa hiệu ứng scanline */
-}
-
-/* Hiệu ứng CRT Scanline đè lên trên */
-.game-container::before {
-  content: " ";
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
-    linear-gradient(
-      90deg,
-      rgba(255, 0, 0, 0.06),
-      rgba(0, 255, 0, 0.02),
-      rgba(0, 0, 255, 0.06)
-    );
-  z-index: 2;
-  background-size: 100% 2px, 3px 100%;
-  pointer-events: none; /* Để vẫn click được xuyên qua */
-  opacity: 0.6;
-}
-
+/* ====== TITLES ====== */
 h1 {
   color: #66fcf1;
   text-align: center;
-  font-size: 36px; /* Chữ to hơn */
   margin-top: 0;
-  text-shadow: 2px 2px #ff00de; /* Hiệu ứng bóng Cyberpunk */
+
+  font-size: 36px;
   letter-spacing: 2px;
+  text-shadow: 2px 2px #ff00de;
 }
 
-/* Phần chữ chạy (Typewriter) */
+h3 {
+  color: #45a29e;
+}
+
+/* ====== STORY AREA ====== */
 .story-box {
-  background-color: #151b24; /* Màu nền nhẹ hơn xíu cho dễ đọc */
+  background-color: #151b24;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1.6;
+
+  min-height: 120px;
   padding: 30px;
   margin: 30px 0;
-  font-size: 22px; /* Chữ to rõ */
-  min-height: 120px;
-  line-height: 1.6;
+
   border-left: 5px solid #66fcf1;
-  color: #fff;
   position: relative;
 }
 
-/* Con trỏ nhấp nháy cuối câu */
+/* Con trỏ nhấp nháy */
 .cursor::after {
   content: "▋";
   color: #66fcf1;
@@ -289,27 +103,170 @@ h1 {
   }
 }
 
-/* Các phần khác giữ nguyên hoặc chỉnh to lên tí */
+/* ====== BLANK (ô cần điền) ====== */
 .blank {
-  border-bottom: 2px solid #66fcf1;
-  color: #66fcf1;
-  padding: 0 5px;
   display: inline-block;
+  padding: 0 5px;
+  color: #66fcf1;
+  border-bottom: 2px solid #66fcf1;
 }
 
+/* ====== INTRO / OUTRO ====== */
+.intro-text,
+.outro-text {
+  text-align: left;
+  line-height: 1.6;
+  background: #18191c;
+  border-left: 4px solid #66fcf1;
+}
+
+/* ====== HEADER IN GAME ====== */
+.header-game {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: #888;
+  font-weight: bold;
+}
+
+/* ====== HINT SYSTEM ====== */
+.hints-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.hint-box {
+  flex: 1;
+  height: 80px;
+  cursor: pointer;
+
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+
+  background: #1a1a1d;
+  border: 1px dashed #555;
+  padding: 10px;
+  transition: 0.3s;
+}
+
+.hint-box:hover {
+  background: #222;
+  border-color: #888;
+}
+
+.hint-box.revealed {
+  cursor: default;
+  background: #0f3030;
+  border: 1px solid #45a29e;
+}
+
+.hint-label {
+  font-size: 12px;
+  color: #66fcf1;
+  margin-bottom: 5px;
+}
+
+.hint-content {
+  font-size: 13px;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* ====== INPUT + BUTTON ====== */
 input[type="text"] {
+  width: 60%;
   padding: 15px;
-  font-size: 20px; /* Input to hơn */
+
+  font-size: 20px;
+  text-align: center;
+
   background: #c5c6c7;
   color: #000;
+  border: none;
+  font-family: inherit;
 }
 
 button {
   padding: 15px 30px;
   font-size: 18px;
+
+  background-color: #45a29e;
+  color: #0b0c10;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: inherit;
 }
 
-/* Khu vực Hint to hơn */
-.hint-box {
-  height: 80px;
+button:hover {
+  background: #66fcf1;
+}
+
+/* ====== START BUTTON ====== */
+.start-btn {
+  width: 100%;
+  padding: 15px;
+  margin-top: 20px;
+  font-size: 18px;
+
+  background: #45a29e;
+  color: #000;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.start-btn:hover {
+  background: #66fcf1;
+}
+
+/* ====== PROGRESS BAR ====== */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background-color: #333;
+}
+
+#progress-fill {
+  height: 100%;
+  width: 0%;
+  background-color: #66fcf1;
+  transition: width 0.5s ease;
+}
+
+/* ====== STATUS COLORS ====== */
+.success {
+  color: #66fcf1;
+}
+
+.error {
+  color: #ff4d4d;
+}
+
+/* ====== SHAKE EFFECT ====== */
+.shake {
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
