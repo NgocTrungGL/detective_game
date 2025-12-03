@@ -20,35 +20,30 @@
         type="audio/mpeg"
       />
     </audio>
-
     <audio id="bgm-phase-1" loop>
       <source
         src="{{ url_for('static', filename='sounds/bgm-phase-13.mp3') }}"
         type="audio/mpeg"
       />
     </audio>
-
     <audio id="bgm-phase-2" loop>
       <source
         src="{{ url_for('static', filename='sounds/bgm-phase-46.mp3') }}"
         type="audio/mpeg"
       />
     </audio>
-
     <audio id="bgm-phase-3" loop>
       <source
         src="{{ url_for('static', filename='sounds/bgm-phase-79.mp3') }}"
         type="audio/mpeg"
       />
     </audio>
-
     <audio id="bgm-end">
       <source
         src="{{ url_for('static', filename='sounds/end.mp3') }}"
         type="audio/mpeg"
       />
     </audio>
-
     <audio id="sfx-typing">
       <source
         src="{{ url_for('static', filename='sounds/typing.mp3') }}"
@@ -63,12 +58,11 @@
     </audio>
 
     <div class="game-container">
-      <!-- INTRO -->
       <div id="intro-screen">
         <h1>📁 事件ファイル：No.404</h1>
         <div class="story-box intro-text">
-          <p><strong>被害者（疑い）：</strong> 田中先輩（大学4年生）</p>
-          <p><strong>状況：</strong> 行方不明 3日目</p>
+          <p><strong>被害者（疑い）：</strong> 田中先輩（大学４年生）</p>
+          <p><strong>状況：</strong> 行方不明 ３日目</p>
           <p>
             <strong>背景：</strong>
             大雨の夜。田中が最後に目撃されたのは大学の正門付近。同じ時間帯に重大な交通事故があったという噂もある。
@@ -78,13 +72,12 @@
             調査報告書の中で“ぼやけてしまった単語”を復元し、事件の真相を解き明かせ。
           </p>
           <p style="font-size: 0.8em; color: #666; margin-top: 10px">
-            ※どこかをクリックするとシステム音声が再生されます
+            ※画面をクリックしてシステム音声を有効化してください
           </p>
         </div>
         <button class="start-btn" onclick="startGame()">🕵️‍♂️ 捜査開始</button>
       </div>
 
-      <!-- GAME -->
       <div id="game-area" style="display: none">
         <div class="header-game">
           <h2 id="level-title" style="margin: 0; color: #45a29e">手がかり…</h2>
@@ -124,9 +117,20 @@
           <button onclick="submitAnswer()">確認</button>
           <p id="feedback-msg"></p>
         </div>
+
+        <div id="success-modal" class="modal-overlay" style="display: none">
+          <div class="modal-content">
+            <h2 class="modal-title">🔓 DECRYPTED SUCCESS</h2>
+            <div class="modal-body">
+              <p class="jp-sentence" id="modal-jp"></p>
+              <hr class="modal-divider" />
+              <p class="vi-translation" id="modal-vi"></p>
+            </div>
+            <button class="next-btn" onclick="nextLevel()">捜査を続行 ▶</button>
+          </div>
+        </div>
       </div>
 
-      <!-- END -->
       <div id="end-screen" style="display: none">
         <h1>🎉 事件解決</h1>
         <div class="story-box outro-text">
@@ -148,15 +152,14 @@
       </div>
     </div>
 
-    <!-- JS giữ nguyên -->
     <script>
-      /* --- toàn bộ JS không đổi, chỉ đổi text bên trên --- */
       let currentLevel = 1;
       const totalLevels = 9;
       let currentHints = [];
       let currentBGM = null;
       let introPlayed = false;
 
+      // Audio Elements
       const bgmIntro = document.getElementById("bgm-intro");
       const bgmPhase1 = document.getElementById("bgm-phase-1");
       const bgmPhase2 = document.getElementById("bgm-phase-2");
@@ -165,6 +168,7 @@
       const sfxTyping = document.getElementById("sfx-typing");
       const sfxCorrect = document.getElementById("sfx-correct");
 
+      // Volume Settings
       const musicVolume = 0.4;
       bgmIntro.volume = musicVolume;
       bgmPhase1.volume = musicVolume;
@@ -173,18 +177,23 @@
       bgmEnd.volume = 0.6;
       sfxTyping.volume = 0.5;
 
+      // Bật nhạc Intro khi click lần đầu
       function tryPlayIntro() {
         if (
           !introPlayed &&
           document.getElementById("intro-screen").style.display !== "none"
         ) {
-          bgmIntro.play().then(() => {
-            introPlayed = true;
-            currentBGM = bgmIntro;
-          });
+          bgmIntro
+            .play()
+            .then(() => {
+              introPlayed = true;
+              currentBGM = bgmIntro;
+            })
+            .catch(() => {});
         }
       }
 
+      // Quản lý chuyển nhạc
       function switchBGM(newBGM) {
         if (currentBGM !== newBGM) {
           if (currentBGM) {
@@ -198,15 +207,18 @@
         }
       }
 
+      // Bắt đầu game
       function startGame() {
         document.getElementById("intro-screen").style.display = "none";
         document.getElementById("game-area").style.display = "block";
         loadLevel(currentLevel);
       }
 
+      // Tải dữ liệu màn chơi
       function loadLevel(id) {
         resetHints();
 
+        // Chuyển nhạc theo giai đoạn
         if (id >= 1 && id <= 3) switchBGM(bgmPhase1);
         else if (id >= 4 && id <= 6) switchBGM(bgmPhase2);
         else if (id >= 7 && id <= 9) switchBGM(bgmPhase3);
@@ -222,20 +234,25 @@
                 "progress-text"
               ).innerText = `${id}/${totalLevels}`;
 
+              // Hiệu ứng chạy chữ
               const storyContainer = document.getElementById("story-text");
               typeWriterHTML(data.story, storyContainer, 40);
 
+              // Reset input
               document.getElementById("answer-input").value = "";
               document.getElementById("feedback-msg").innerText = "";
               document.getElementById("feedback-msg").className = "";
 
               currentHints = data.hints;
+
+              // Thanh tiến trình
               let pct = ((id - 1) / totalLevels) * 100;
               document.getElementById("progress-fill").style.width = pct + "%";
             }
           });
       }
 
+      // Hiệu ứng Typewriter (xử lý thẻ HTML)
       function typeWriterHTML(htmlText, element, speed) {
         element.innerHTML = "";
         let i = 0;
@@ -282,6 +299,7 @@
         }
       }
 
+      // Xử lý nộp đáp án
       function submitAnswer() {
         const input = document.getElementById("answer-input").value;
         fetch("/check_answer", {
@@ -292,25 +310,48 @@
           .then((res) => res.json())
           .then((data) => {
             const feedback = document.getElementById("feedback-msg");
+
             if (data.correct) {
               sfxCorrect.play();
               feedback.innerText = data.message;
               feedback.className = "success";
-              setTimeout(() => {
-                currentLevel++;
-                loadLevel(currentLevel);
-              }, 1500);
+
+              // THAY ĐỔI QUAN TRỌNG: Hiện Modal thay vì chuyển level ngay
+              showSuccessModal(data.full_sentence, data.translation);
             } else {
               feedback.innerText = data.message;
               feedback.className = "error";
+              // Hiệu ứng rung
               document.getElementById("answer-input").classList.add("shake");
-              setTimeout(() => {
-                document
-                  .getElementById("answer-input")
-                  .classList.remove("shake");
-              }, 500);
+              setTimeout(
+                () =>
+                  document
+                    .getElementById("answer-input")
+                    .classList.remove("shake"),
+                500
+              );
             }
           });
+      }
+
+      // Hàm hiển thị Modal thành công
+      function showSuccessModal(jp, vi) {
+        document.getElementById("modal-jp").innerHTML = jp;
+        document.getElementById("modal-vi").innerText = vi;
+
+        const modal = document.getElementById("success-modal");
+        modal.style.display = "flex";
+        modal.classList.add("fade-in");
+      }
+
+      // Hàm chuyển sang level tiếp theo (gọi từ nút trong Modal)
+      function nextLevel() {
+        // Ẩn modal
+        document.getElementById("success-modal").style.display = "none";
+
+        // Tăng level và tải bài mới
+        currentLevel++;
+        loadLevel(currentLevel);
       }
 
       function finishGame() {
@@ -319,6 +360,7 @@
         switchBGM(bgmEnd);
       }
 
+      // Phím Enter
       document.addEventListener("DOMContentLoaded", () => {
         document
           .getElementById("answer-input")

@@ -280,3 +280,107 @@ button:hover {
     transform: translateX(0);
   }
 }
+/* ====== SUCCESS MODAL (Form ghép câu) ====== */
+
+/* Lớp phủ mờ toàn màn hình */
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85); /* Màu đen trong suốt */
+  backdrop-filter: blur(5px); /* Làm mờ nền đằng sau */
+  z-index: 100; /* Luôn nổi lên trên cùng */
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Hộp nội dung chính */
+.modal-content {
+  background: #0f1319;
+  border: 2px solid #66fcf1;
+  box-shadow: 0 0 40px rgba(102, 252, 241, 0.3);
+  padding: 40px;
+  width: 80%;
+  max-width: 600px;
+  text-align: center;
+  border-radius: 8px;
+  position: relative;
+
+  /* Hiệu ứng trượt lên */
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Tiêu đề Modal */
+.modal-title {
+  color: #66fcf1;
+  font-size: 24px;
+  margin-top: 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px #66fcf1;
+  margin-bottom: 20px;
+}
+
+/* Phần hiển thị câu */
+.jp-sentence {
+  font-size: 26px;
+  color: #fff;
+  font-weight: bold;
+  margin: 20px 0;
+  line-height: 1.5;
+}
+
+/* Từ khóa được highlight trong câu */
+.highlight-word {
+  color: #ff00de; /* Màu hồng neon nổi bật */
+  text-shadow: 0 0 5px #ff00de;
+  border-bottom: 2px solid #ff00de;
+}
+
+.modal-divider {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #45a29e, transparent);
+  margin: 20px 0;
+}
+
+.vi-translation {
+  font-size: 18px;
+  color: #aaa;
+  font-style: italic;
+  margin-bottom: 30px;
+}
+
+/* Nút Next trong Modal */
+.next-btn {
+  background: transparent;
+  border: 2px solid #66fcf1;
+  color: #66fcf1;
+  padding: 12px 40px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  font-family: "Courier Prime", monospace;
+}
+
+.next-btn:hover {
+  background: #66fcf1;
+  color: #000;
+  box-shadow: 0 0 20px #66fcf1;
+}

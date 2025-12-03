@@ -2,105 +2,122 @@ from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-# 新しいデータ構造：3つのヒント & 空欄入りストーリー
 GAME_DATA = [
     {
         "id": 1,
-        "title": "手がかり①：落ちていたもの",
-        "story": "学校の門の前で一枚の新聞を拾った。１面には事故についての ...<span class='blank'>______</span>... が載っていた。",
-        "answers": ["新聞"],
+        "title": "手がかり1：怪しい物",
+        "story": "学校の門の前に落ちていた...<span class='blank'>______</span>... の１面には、大学近くで起きた交通事故について書かれていた。その事件は、田中先輩に関係しているのではないかと疑われている。",
+        "answers": ["新聞"], 
+        "full_sentence": "学校の門の前に落ちていた<span class='highlight-word'>新聞</span>の１面には、大学近くで起きた交通事故について書かれていた。その事件は、田中先輩に関係しているのではないかと疑われている。",
+        "translation_vi": "Trước cổng trường có tờ bao bị rơi, trang đầu nói về một vụ tai nạn xe xảy ra gần khu đại học. Vụ việc được nghi ngờ rằng có liên quan đến Tanaka-senpai.",
         "hints": [
-            "意味：ニュース、報道。",
-            "よく使う言葉：新聞（しんぶん）",
-            "答え（漢字2文字）：報…（ほう…）"
+            "朝に読む人が多いです。",
+            "世界の出来事が分かります。",
+            "駅やコンビニにも置いてあります。"
         ]
     },
     {
         "id": 2,
-        "title": "手がかり②：目撃証言―道",
-        "story": "学生の証言：「彼は駅の方へ向かって ...<span class='blank'>______</span>... を急いで歩いていました。」",
+        "title": "手がかり2：目撃者",
+        "story": "ある学生は、その日、先輩が学校を出る...<span class='blank'>______</span>...をとても急いで歩いているのを見たと証言している。",
         "answers": ["道"],
+        "full_sentence": "ある学生は、その日、先輩が学校を出る<span class='highlight-word'>道</span>をとても急いで歩いているのを見たと証言している。",
+        "translation_vi": "Một sinh viên cho biết hôm đó thấy tiền bối đi rất vội trên đường dẫn ra khỏi trường",
         "hints": [
-            "意味：車が通る大きな道。",
-            "よく使う言葉：道（みち）",
-            "答え（漢字2文字）：道…（どう…）"
+            " 人や車が通るところです。",
+            " 迷うとき、この場所が分からなくなります。",
+            "学校の前にもあります。"
         ]
     },
     {
         "id": 3,
-        "title": "手がかり③：カメラ映像―行動",
-        "story": "防犯カメラ映像：田中さんが道路を ...<span class='blank'>______</span>... ところに車が突っ込んだ。",
-        "answers": ["渡る"],
+        "title": "手がかり3：カメラ",
+        "story": "防犯カメラには、事故が起きたまさにその時刻に先輩が道路を...<span class='blank'>______</span>...様子が映っていた。その頃、被害者の携帯電話には「思いを込めて書きました…」というメッセージが届いていた。",
+        "answers": ["渡す"],
+        "full_sentence": "防犯カメラには、事故が起きたまさにその時刻に先輩が道路を<span class='highlight-word'>渡す</span>様子が映っていた。その頃、被害者の携帯電話には「思いを込めて書きました…」というメッセージが届いていた。",
+        "translation_vi": "Một camera an ninh ghi lại cảnh tiền bối băng qua đường đúng thời điểm tai nạn. Điện thoại của nạn nhân lúc đó có tin nhắn '思いを込めて書きました…'",
         "hints": [
-            "意味：横に切って進む、横断する。",
-            "よく使う言葉：渡る（わたる）",
-            "答え（動詞）：横…（よこ…）"
+            "横断歩道ですることです。",
+            "信号を見て行います。",
+            "向こう側へ行くときに必要です。"
         ]
     },
     {
         "id": 4,
-        "title": "手がかり④：噂話―性格",
-        "story": "みんなの噂：「彼はとても真面目な ...<span class='blank'>______</span>... だよ。」",
+        "title": "手がかり4：うわさ",
+        "story": "友人たちは、被害者を「後輩思いの優しい...<span class='blank'>______</span>...」だと語っている。その特徴は、田中さんによく似ているという。",
         "answers": ["先輩"],
+        "full_sentence": "友人たちは、被害者を「後輩思いの優しい<span class='highlight-word'>先輩</span>だと語っている。その特徴は、田中さんによく似ているという。",
+        "translation_vi": "Bạn bè mô tả nạn nhân là một đàn anh rất quan tâm hậu bối. Theo như mô tả thì đây rất giống với Tanaka sempai",
         "hints": [
-            "意味：学年が上の学生。",
-            "よく使う言葉：先輩（せんぱい）",
-            "答え（漢字3文字）：上…（じょう…）"
+            "自分より早く学校に入った人です。",
+            "困ったときに相談できるひと。",
+            "後輩に優しい人も多いです。"
         ]
     },
     {
         "id": 5,
-        "title": "手がかり⑤：部室―スケジュール表",
-        "story": "掲示板には「18:00 〜 ...<span class='blank'>______</span>... のリハーサル」と書かれている。",
-        "answers": ["練習する"],
+        "title": "Manh mối 5: Phòng CLB",
+        "story": "部活動のスケジュールによると、被害者はその夜に...<span class='blank'>______</span>...が入っていた。その時間帯は、田中先輩の普段の練習時間とも重なっている。",
+        "answers": ["練習"],
+        "full_sentence": "部活動のスケジュールによると、被害者はその夜に<span class='highlight-word'>練習</span>が入っていた。その時間帯は、田中先輩の普段の練習時間とも重なっている。",
+        "translation_vi": "Lịch của câu lạc bộ cho thấy tối hôm đó nạn nhân có buổi luyện tập. Thời điểm này cũng trùng với lịch luyện tập thường ngày của Tanaka sempai",
         "hints": [
-            "意味：本番前の練習・リハーサル。",
-            "よく使う言葉：練習（れんしゅう）",
-            "答え（カタカナ）：リ…（り…）"
+            "上手になるために必要です。",
+            "スポーツでも音楽でも行います。",
+            "本番の前にします。"
         ]
     },
     {
         "id": 6,
-        "title": "手がかり⑥：クラスメイト―トラブル",
-        "story": "田中さんは、 ...<span class='blank'>______</span>... の手続きがシステムエラーでできずにストレスを抱えていた。",
+        "title": "手がかり5：部室",
+        "story": "クラスメイトによると、田中は最近、多くの科目を再履修するため...<span class='blank'>______</span>...でとてもストレスを抱えており、恋人への気配りもできなくなっていたという。そのことが原因で、別れることになったと噂されている。",
         "answers": ["授業登録"],
+        "full_sentence": "クラスメイトによると、田中は最近、多くの科目を再履修するため<span class='highlight-word'>授業登録</span>でとてもストレスを抱えており、恋人への気配りもできなくなっていたという。そのことが原因で、別れることになったと噂されている。",
+        "translation_vi": "Bạn cùng lớp nói dạo này Tanaka rất căng thẳng vì phải đăng kí tín chỉ lại nhiều môn nên không quan tâm đến người yêu và nghe nói đã phải chia tay vì điều này.",
         "hints": [
-            "意味：授業や単位の登録申請。",
-            "よく使う言葉：授業登録（じゅぎょうとうろく）",
-            "答え（漢字4文字）：履…（り…）"
+            "新しい学期の準備で行います。",
+            "時間割を決めるために必要です。",
+            "システムエラーが起こると困ります。"
         ]
     },
     {
         "id": 7,
-        "title": "手がかり⑦：アパート―原稿",
-        "story": "部屋の机の上には、書きかけの ...<span class='blank'>______</span>... が置いてあった。",
+        "title": "手がかり7：原稿",
+        "story": "先輩の田中先輩の部屋に立ち寄ったとき、未完成の...<span class='blank'>______</span>...と「第3章を直さなきゃ！」というメモを見つけた。",
         "answers": ["論文"],
+        "full_sentence": "先輩の田中先輩の部屋に立ち寄ったとき、未完成の<span class='highlight-word'>論文</span>と「第3章を直さなきゃ！」というメモを見つけた。",
+        "translation_vi": "Khi tôi ghé vào phòng tiền bối Takana thì Trong phòng anh ấy, tôi tìm thấy bản luận văn chưa hoàn thành cùng ghi chú “Phải sửa lại chương 3!”.",
         "hints": [
-            "意味：レポート、研究の文章。",
-            "よく使う言葉：論文（ろんぶん）",
-            "答え（カタカナ）：レ…（れ…）"
+            "研究について書きます。",
+            "大学生にとってとても大事です。",
+            "長い文章になることが多いです。"
         ]
     },
     {
         "id": 8,
-        "title": "手がかり⑧：パソコン―下書きメール",
-        "story": "下書きフォルダには教授宛の ...<span class='blank'>______</span>... が残っていた。",
+        "title": "手がかり8：不思議な手紙",
+        "story": "パソコンの中には、教授宛ての下書き...<span class='blank'>______</span>...があり、「すみません、期限までに提出できません。」と書いてあった。",
         "answers": ["メール"],
+        "full_sentence": "パソコンの中には、教授宛ての下書き<span class='highlight-word'>メール</span>があり、「すみません、期限までに提出できません。」と書いてあった。",
+        "translation_vi": "Trong máy tính, có mail nháp gửi cho giáo sư: “Xin lỗi, em chưa thể nộp bài đúng hạn.”",
         "hints": [
-            "意味：メール（フォーマルな表現）。",
-            "よく使う言葉：メール（めーる）",
-            "答え（漢字＋カナ）：電…（でん…）"
+            "連絡文",
+            "書きかけの文面です。",
+            "通信手段の一つです。"
         ]
     },
     {
         "id": 9,
-        "title": "手がかり⑨：締め切り",
-        "story": "どうやら今日は、そのレポートを ...<span class='blank'>______</span>... 最終期限だったようだ。",
+        "title": "手がかり9：締め切り",
+        "story": "私は、タナカ先輩の論文は事故のあった日に...<span class='blank'>______</span>...されるはずだったのだと気づいた。",
         "answers": ["提出"],
+        "full_sentence": "私は、タナカ先輩の論文は事故のあった日に<span class='highlight-word'>提出</span>されるはずだったのだと気づいた。",
+        "translation_vi": "Tôi hiểu ra rằng Bài luận văn của Tanaka sempai đáng lẽ phải nộp vào hôm tai nạn",
         "hints": [
-            "意味：提出すること、出すこと。",
-            "よく使う言葉：出す（だす）",
-            "答え（漢字2文字）：提…（てい…）"
+            "宿題やレポートですることです。",
+            "期限があります。",
+            "遅れると問題になります。"
         ]
     }
 ]
@@ -124,10 +141,15 @@ def check_answer():
     current_level = GAME_DATA[level_id - 1]
     
     if user_answer in current_level['answers']:
-        return jsonify({"correct": True, "message": "正解！手がかりが解放されました。"})
+        # Trả về thêm full_sentence và translation
+        return jsonify({
+            "correct": True, 
+            "message": "データが一致！復号中…",
+            "full_sentence": current_level["full_sentence"],
+            "translation": current_level["translation_vi"]
+        })
     else:
         return jsonify({"correct": False, "message": "残念！ヒントを使ってみましょう。"})
-
 
 if __name__ == '__main__':
     app.run(debug=True)
