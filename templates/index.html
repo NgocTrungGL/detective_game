@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detective Paraphrase</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body onclick="tryPlayIntro()">
+    <audio id="bgm-intro" loop>
+      <source
+        src="{{ url_for('static', filename='sounds/intro.mp3') }}"
+        type="audio/mpeg"
+      />
+    </audio>
+    <audio id="bgm-phase-1" loop>
+      <source
+        src="{{ url_for('static', filename='sounds/bgm-phase-13.mp3') }}"
+        type="audio/mpeg"
+      />
+    </audio>
+    <audio id="bgm-phase-2" loop>
+      <source
+        src="{{ url_for('static', filename='sounds/bgm-phase-46.mp3') }}"
+        type="audio/mpeg"
+      />
+    </audio>
+    <audio id="bgm-phase-3" loop>
+      <source
+        src="{{ url_for('static', filename='sounds/bgm-phase-79.mp3') }}"
+        type="audio/mpeg"
+      />
+    </audio>
+    <audio id="bgm-end">
+      <source
+        src="{{ url_for('static', filename='sounds/end.mp3') }}"
+        type="audio/mpeg"
+      />
+    </audio>
+    <audio id="sfx-typing">
+      <source
+        src="{{ url_for('static', filename='sounds/typing.mp3') }}"
+        type="audio/mpeg"
+      />
+    </audio>
+    <audio id="sfx-correct">
+      <source
+        src="{{ url_for('static', filename='sounds/correct.mp3') }}"
+        type="audio/mpeg"
+      />
+    </audio>
+
+    <div class="game-container">
+        <div id="intro-screen">
+        <h1>📁 事件ファイル：No.404</h1>
+        <div class="story-box intro-text">
+            <p><strong>対象者：</strong> 田中先輩（大学４年生）</p>
+            <p><strong>状況：</strong> 行方不明 ３日目</p>
+            <p>
+            <strong>背景：</strong><br />
+            ——すべては、あの夜から始まった。<br />
+            雨が静かに降り続く中、田中先輩はいつも通り部屋を出たが、それ以来、彼の姿を見た者はいない。<br />
+            部屋には生活の痕跡がそのまま残されているが、どこかおかしい。まるで「途中で切り取られた日常」のようだ。<br />
+            </p>
+            <p>
+            <strong>あなたの任務：</strong><br />
+            残された手がかりをつなぎ合わせ、彼が消えた理由を突き止めろ。
+            </p>
+            <p style="font-size: 0.8em; color: #666; margin-top: 10px">
+            ※真実はいつも一つ！
+            </p>
+        </div>
+        <button class="start-btn" onclick="startGame()">🕵️‍♂️ 捜査開始</button>
+        </div>
+      <div id="game-area" style="display: none">
+        <div class="header-game">
+          <h2 id="level-title" style="margin: 0; color: #45a29e">手がかり…</h2>
+          <span id="progress-text" style="font-size: 20px">1/9</span>
+        </div>
+
+        <div class="progress-bar">
+          <div id="progress-fill"></div>
+        </div>
+
+        <div class="story-box cursor">
+          <p id="story-text"></p>
+        </div>
+
+        <div class="hints-container">
+          <div class="hint-box" onclick="revealHint(0)" id="hint-box-0">
+            <span class="hint-label">ヒント 1</span>
+            <span class="hint-content">???</span>
+          </div>
+          <div class="hint-box" onclick="revealHint(1)" id="hint-box-1">
+            <span class="hint-label">ヒント 2</span>
+            <span class="hint-content">???</span>
+          </div>
+          <div class="hint-box" onclick="revealHint(2)" id="hint-box-2">
+            <span class="hint-label">ヒント 3</span>
+            <span class="hint-content">???</span>
+          </div>
+        </div>
+
+        <div class="interaction-area">
+          <input
+            type="text"
+            id="answer-input"
+            placeholder="単語を入力..."
+            autocomplete="off"
+          />
+          <button onclick="submitAnswer()">確認</button>
+          <p id="feedback-msg"></p>
+        </div>
+
+        <div id="success-modal" class="modal-overlay" style="display: none">
+          <div class="modal-content">
+            <h2 class="modal-title">🔓 DECRYPTED SUCCESS</h2>
+            <div class="modal-body">
+              <p class="jp-sentence" id="modal-jp"></p>
+              <hr class="modal-divider" />
+              <p class="vi-translation" id="modal-vi"></p>
+            </div>
+            <button class="next-btn" onclick="nextLevel()">捜査を続行 ▶</button>
+          </div>
+        </div>
+      </div>
+
+        <div id="end-screen" style="display: none">
+        <h1>🎉 事件解決</h1>
+        <div class="story-box outro-text">
+            <h3>真相：</h3>
+
+            <p>
+            ——点と点が、ようやくつながった。<br />
+            田中先輩は、何者かに連れ去られたわけでも、事故に巻き込まれたわけでもなかった。<br />
+            むしろ彼は、自分が関わっていたデータの中に「見過ごせない異変」があることに気づいてしまったのだ。
+            </p>
+
+            <p>
+            誰かが静かに、しかし確実に動いている。<br />
+            気づいた者は、消されるかもしれない——。<br />
+            そう判断した彼は、自ら姿を消すという選択をした。
+            </p>
+
+            <p>
+            残された痕跡はわずかだが、それは偶然ではない。<br />
+            すべては意図された行動だった。
+            </p>
+
+            <p>
+            数日後、あなたの端末に短いメッセージが届く。<br />
+            「ありがとう。もう少しで終わる。」<br />
+            ——それが、彼からの最後の連絡だった。
+            </p>
+        </div>
+
+        <button class="start-btn" onclick="location.reload()">
+            🔄 再調査する
+        </button>
+        </div>
+    </div>
+
+    <script>
+      let currentLevel = 1;
+      const totalLevels = 9;
+      let currentHints = [];
+      let currentBGM = null;
+      let introPlayed = false;
+
+      // Audio Elements
+      const bgmIntro = document.getElementById("bgm-intro");
+      const bgmPhase1 = document.getElementById("bgm-phase-1");
+      const bgmPhase2 = document.getElementById("bgm-phase-2");
+      const bgmPhase3 = document.getElementById("bgm-phase-3");
+      const bgmEnd = document.getElementById("bgm-end");
+      const sfxTyping = document.getElementById("sfx-typing");
+      const sfxCorrect = document.getElementById("sfx-correct");
+
+      // Volume Settings
+      const musicVolume = 0.4;
+      bgmIntro.volume = musicVolume;
+      bgmPhase1.volume = musicVolume;
+      bgmPhase2.volume = musicVolume;
+      bgmPhase3.volume = musicVolume;
+      bgmEnd.volume = 0.6;
+      sfxTyping.volume = 0.5;
+
+      // Bật nhạc Intro khi click lần đầu
+      function tryPlayIntro() {
+        if (
+          !introPlayed &&
+          document.getElementById("intro-screen").style.display !== "none"
+        ) {
+          bgmIntro
+            .play()
+            .then(() => {
+              introPlayed = true;
+              currentBGM = bgmIntro;
+            })
+            .catch(() => {});
+        }
+      }
+
+      // Quản lý chuyển nhạc
+      function switchBGM(newBGM) {
+        if (currentBGM !== newBGM) {
+          if (currentBGM) {
+            currentBGM.pause();
+            currentBGM.currentTime = 0;
+          }
+          if (newBGM) {
+            newBGM.play().catch(() => {});
+            currentBGM = newBGM;
+          }
+        }
+      }
+
+      // Bắt đầu game
+      function startGame() {
+        document.getElementById("intro-screen").style.display = "none";
+        document.getElementById("game-area").style.display = "block";
+        loadLevel(currentLevel);
+      }
+
+      // Tải dữ liệu màn chơi
+      function loadLevel(id) {
+        resetHints();
+
+        // Chuyển nhạc theo giai đoạn
+        if (id >= 1 && id <= 3) switchBGM(bgmPhase1);
+        else if (id >= 4 && id <= 6) switchBGM(bgmPhase2);
+        else if (id >= 7 && id <= 9) switchBGM(bgmPhase3);
+
+        fetch(`/get_level/${id}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.finished) {
+              finishGame();
+            } else {
+              document.getElementById("level-title").innerText = data.title;
+              document.getElementById(
+                "progress-text"
+              ).innerText = `${id}/${totalLevels}`;
+
+              // Hiệu ứng chạy chữ
+              const storyContainer = document.getElementById("story-text");
+              typeWriterHTML(data.story, storyContainer, 40);
+
+              // Reset input
+              document.getElementById("answer-input").value = "";
+              document.getElementById("feedback-msg").innerText = "";
+              document.getElementById("feedback-msg").className = "";
+
+              currentHints = data.hints;
+
+              // Thanh tiến trình
+              let pct = ((id - 1) / totalLevels) * 100;
+              document.getElementById("progress-fill").style.width = pct + "%";
+            }
+          });
+      }
+
+      // Hiệu ứng Typewriter (xử lý thẻ HTML)
+      function typeWriterHTML(htmlText, element, speed) {
+        element.innerHTML = "";
+        let i = 0;
+        sfxTyping.pause();
+        sfxTyping.currentTime = 0;
+        sfxTyping.play().catch(() => {});
+
+        function type() {
+          if (i < htmlText.length) {
+            if (htmlText.charAt(i) === "<") {
+              let tag = "";
+              while (htmlText.charAt(i) !== ">" && i < htmlText.length) {
+                tag += htmlText.charAt(i);
+                i++;
+              }
+              tag += ">";
+              i++;
+              element.innerHTML += tag;
+            } else {
+              element.innerHTML += htmlText.charAt(i);
+              i++;
+            }
+            setTimeout(type, speed);
+          } else {
+            sfxTyping.pause();
+          }
+        }
+        type();
+      }
+
+      function resetHints() {
+        for (let i = 0; i < 3; i++) {
+          let box = document.getElementById(`hint-box-${i}`);
+          box.classList.remove("revealed");
+          box.querySelector(".hint-content").innerText = "??? (クリック)";
+        }
+      }
+
+      function revealHint(index) {
+        let box = document.getElementById(`hint-box-${index}`);
+        if (!box.classList.contains("revealed")) {
+          box.classList.add("revealed");
+          box.querySelector(".hint-content").innerText = currentHints[index];
+        }
+      }
+
+      // Xử lý nộp đáp án
+      function submitAnswer() {
+        const input = document.getElementById("answer-input").value;
+        fetch("/check_answer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ level_id: currentLevel, answer: input }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            const feedback = document.getElementById("feedback-msg");
+
+            if (data.correct) {
+              sfxCorrect.play();
+              feedback.innerText = data.message;
+              feedback.className = "success";
+
+              // THAY ĐỔI QUAN TRỌNG: Hiện Modal thay vì chuyển level ngay
+              showSuccessModal(data.full_sentence, data.translation);
+            } else {
+              feedback.innerText = data.message;
+              feedback.className = "error";
+              // Hiệu ứng rung
+              document.getElementById("answer-input").classList.add("shake");
+              setTimeout(
+                () =>
+                  document
+                    .getElementById("answer-input")
+                    .classList.remove("shake"),
+                500
+              );
+            }
+          });
+      }
+
+      // Hàm hiển thị Modal thành công
+      function showSuccessModal(jp, vi) {
+        document.getElementById("modal-jp").innerHTML = jp;
+        document.getElementById("modal-vi").innerText = vi;
+
+        const modal = document.getElementById("success-modal");
+        modal.style.display = "flex";
+        modal.classList.add("fade-in");
+      }
+
+      // Hàm chuyển sang level tiếp theo (gọi từ nút trong Modal)
+      function nextLevel() {
+        // Ẩn modal
+        document.getElementById("success-modal").style.display = "none";
+
+        // Tăng level và tải bài mới
+        currentLevel++;
+        loadLevel(currentLevel);
+      }
+
+      function finishGame() {
+        document.getElementById("game-area").style.display = "none";
+        document.getElementById("end-screen").style.display = "block";
+        switchBGM(bgmEnd);
+      }
+
+      // Phím Enter
+      document.addEventListener("DOMContentLoaded", () => {
+        document
+          .getElementById("answer-input")
+          .addEventListener("keypress", function (event) {
+            if (event.key === "Enter") submitAnswer();
+          });
+      });
+    </script>
+  </body>
+</html>
